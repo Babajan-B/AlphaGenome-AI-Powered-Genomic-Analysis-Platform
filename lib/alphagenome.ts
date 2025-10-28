@@ -57,27 +57,70 @@ export interface GenomeAnalysisResponse {
 export class AlphaGenomeAPI {
   private apiKey: string;
   private baseURL: string;
+  private maxRetries: number = 3;
+  private retryDelay: number = 2000; // Start with 2 seconds
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey || API_KEY;
     this.baseURL = BASE_URL;
   }
 
-  private async callGemini(prompt: string): Promise<any> {
-    const response = await axios.post(
-      `${this.baseURL}/models/gemini-2.5-flash:generateContent?key=${this.apiKey}`,
-      {
-        contents: [{
-          parts: [{ text: prompt }]
-        }]
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
+  private async sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private async callGemini(prompt: string, retryCount: number = 0): Promise<any> {
+    try {
+      const response = await axios.post(
+        `${this.baseURL}/models/gemini-2.0-flash-exp:generateContent?key=${this.apiKey}`,
+        {
+          contents: [{
+            parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 8192,
+          }
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 60000 // 60 second timeout
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error?.message || error.message || 'Unknown error';
+      const statusCode = error.response?.status;
+
+      // Check if it's a rate limit or overload error
+      if (statusCode === 429 || errorMessage.includes('overloaded') || errorMessage.includes('quota') || errorMessage.includes('rate limit')) {
+        if (retryCount < this.maxRetries) {
+          const delay = this.retryDelay * Math.pow(2, retryCount); // Exponential backoff
+          console.log(`API overloaded. Retrying in ${delay / 1000} seconds... (Attempt ${retryCount + 1}/${this.maxRetries})`);
+          await this.sleep(delay);
+          return this.callGemini(prompt, retryCount + 1);
+        } else {
+          throw new Error('Google Gemini AI is currently experiencing high traffic. Please try again in a few minutes. You can also try using a different API key or waiting for the service to stabilize.');
         }
       }
-    );
-    return response.data;
+
+      // Check for invalid API key
+      if (statusCode === 400 && errorMessage.includes('API key')) {
+        throw new Error('Invalid API Key. Please check your API key in Settings and make sure it\'s correct.');
+      }
+
+      // Check for blocked content
+      if (errorMessage.includes('blocked') || errorMessage.includes('safety')) {
+        throw new Error('Content was blocked by safety filters. Try a different sequence or analysis type.');
+      }
+
+      // Generic error
+      throw new Error(`API Error: ${errorMessage}. Status: ${statusCode || 'Unknown'}`);
+    }
   }
 
   async predictSequence(request: GenomeAnalysisRequest): Promise<GenomeAnalysisResponse> {
