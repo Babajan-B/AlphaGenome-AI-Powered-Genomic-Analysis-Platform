@@ -12,6 +12,40 @@ interface VariantReportProps {
 export default function VariantReport({ variantData, onDownload }: VariantReportProps) {
   const reportRef = useRef<HTMLDivElement>(null)
 
+  // Extract actual variant information from the AI response
+  const extractVariantInfo = () => {
+    const predictions = variantData?.predictions || [];
+    const firstPrediction = predictions[0]?.content?.parts?.[0]?.text || '';
+    
+    // Try to extract variant details from the analysis request or response
+    return {
+      chromosome: variantData?.chromosome || 'chr22',
+      position: variantData?.position || '36201698',
+      ref: variantData?.ref || 'A',
+      alt: variantData?.alt || 'C',
+      gene: extractGeneFromText(firstPrediction) || 'Unknown',
+      fullText: firstPrediction
+    };
+  };
+
+  const extractGeneFromText = (text: string) => {
+    // Try to find gene names in common formats
+    const genePatterns = [
+      /gene[:\s]+([A-Z][A-Z0-9]+)/i,
+      /Gene:\s*([A-Z][A-Z0-9]+)/i,
+      /affecting\s+([A-Z][A-Z0-9]+)\s+gene/i,
+      /\b([A-Z]{2,}[0-9]*)\s+gene/,
+    ];
+    
+    for (const pattern of genePatterns) {
+      const match = text.match(pattern);
+      if (match) return match[1];
+    }
+    return null;
+  };
+
+  const variantInfo = extractVariantInfo();
+
   // Sample data for visualization - would be parsed from AI response
   const scoreComparisonData = [
     { metric: 'Pathogenicity', REF: 0.15, ALT: 0.78 },
@@ -316,23 +350,23 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
           <div className="space-y-3">
             <div className="flex justify-between py-2 border-b border-gray-300">
               <span className="font-semibold text-gray-700">Variant ID:</span>
-              <span className="text-gray-900 font-mono">chr22:36201698</span>
+              <span className="text-gray-900 font-mono">{variantInfo.chromosome}:{variantInfo.position}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-gray-300">
               <span className="font-semibold text-gray-700">Position:</span>
-              <span className="text-gray-900 font-mono">chr22:36201698</span>
+              <span className="text-gray-900 font-mono">{variantInfo.chromosome}:{variantInfo.position}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-gray-300">
               <span className="font-semibold text-gray-700">Reference:</span>
-              <span className="text-gray-900 font-mono text-lg">A</span>
+              <span className="text-gray-900 font-mono text-lg">{variantInfo.ref}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-gray-300">
               <span className="font-semibold text-gray-700">Alternate:</span>
-              <span className="text-gray-900 font-mono text-lg">C</span>
+              <span className="text-gray-900 font-mono text-lg">{variantInfo.alt}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-gray-300">
               <span className="font-semibold text-gray-700">Mutation Type:</span>
-              <span className="text-gray-900">Transversion (A→C)</span>
+              <span className="text-gray-900">Transversion ({variantInfo.ref}→{variantInfo.alt})</span>
             </div>
             <div className="flex justify-between py-2">
               <span className="font-semibold text-gray-700">Organism:</span>
@@ -346,26 +380,34 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
           <div className="space-y-3">
             <div className="flex justify-between py-2 border-b border-purple-200">
               <span className="font-semibold text-gray-700">Gene:</span>
-              <span className="text-gray-900 font-bold">EP300</span>
+              <span className="text-gray-900 font-bold">{variantInfo.gene}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-purple-200">
-              <span className="font-semibold text-gray-700">Location:</span>
-              <span className="text-gray-900">Intron 15</span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-purple-200">
-              <span className="font-semibold text-gray-700">Function:</span>
-              <span className="text-gray-900">Histone acetyltransferase</span>
-            </div>
-            <div className="flex justify-between py-2 border-b border-purple-200">
-              <span className="font-semibold text-gray-700">Role:</span>
-              <span className="text-gray-900">Transcriptional co-activator</span>
+              <span className="font-semibold text-gray-700">Analysis Result:</span>
+              <span className="text-gray-900">See AI predictions below</span>
             </div>
             <div className="py-2">
-              <span className="font-semibold text-gray-700">Position:</span>
-              <p className="text-sm text-gray-600 mt-1">2.3 kb downstream of exon 15, 2.5 kb upstream of exon 16</p>
+              <span className="font-semibold text-gray-700 block mb-2">AI Analysis Summary:</span>
+              <p className="text-sm text-gray-600 max-h-32 overflow-y-auto">
+                {variantInfo.fullText.substring(0, 300)}...
+              </p>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* AI-Generated Analysis Section */}
+      <div className="mb-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border-2 border-blue-200">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">AlphaGenome AI Analysis</h2>
+        <div className="bg-white rounded-lg p-6 border border-blue-300 max-h-96 overflow-y-auto">
+          <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
+            {variantInfo.fullText}
+          </pre>
+        </div>
+        <p className="text-xs text-gray-500 mt-3">
+          <strong>Note:</strong> The visualizations below are illustrative examples. For production use, 
+          these should be dynamically generated from the AI analysis above.
+        </p>
       </div>
 
       {/* Pathogenicity Score Visualization */}

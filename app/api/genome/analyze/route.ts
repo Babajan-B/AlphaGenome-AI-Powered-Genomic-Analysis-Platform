@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { alphaGenomeClient, OutputType, Organism } from '@/lib/alphagenome';
+import { AlphaGenomeAPI, OutputType, Organism } from '@/lib/alphagenome';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,8 +11,12 @@ export async function POST(request: NextRequest) {
       variant,
       outputTypes,
       ontologyTerms,
-      organism 
+      organism,
+      apiKey // Extract API key from request
     } = body;
+
+    // Create client with user's API key if provided
+    const client = apiKey ? new AlphaGenomeAPI(apiKey) : new AlphaGenomeAPI();
 
     let result;
     
@@ -28,14 +32,14 @@ export async function POST(request: NextRequest) {
     if (variant) {
       // Variant prediction/scoring
       if (analysisType === 'score_variant') {
-        result = await alphaGenomeClient.scoreVariant({
+        result = await client.scoreVariant({
           variant,
           interval,
           organism: parsedOrganism,
           outputTypes: parsedOutputTypes
         });
       } else {
-        result = await alphaGenomeClient.predictVariant({
+        result = await client.predictVariant({
           variant,
           interval,
           organism: parsedOrganism,
@@ -45,7 +49,7 @@ export async function POST(request: NextRequest) {
       }
     } else if (interval) {
       // Interval-based prediction
-      result = await alphaGenomeClient.predictInterval({
+      result = await client.predictInterval({
         interval,
         organism: parsedOrganism,
         outputTypes: parsedOutputTypes,
@@ -53,7 +57,7 @@ export async function POST(request: NextRequest) {
       });
     } else if (analysisType === 'ism') {
       // In Silico Mutagenesis
-      result = await alphaGenomeClient.ismAnalysis({
+      result = await client.ismAnalysis({
         sequence,
         organism: parsedOrganism,
         outputTypes: parsedOutputTypes
@@ -62,22 +66,22 @@ export async function POST(request: NextRequest) {
       // Sequence-based analysis
       switch (analysisType) {
         case 'structure':
-          result = await alphaGenomeClient.generateProteinStructure(sequence);
+          result = await client.generateProteinStructure(sequence);
           break;
         case 'annotation':
-          result = await alphaGenomeClient.annotateSequence(sequence);
+          result = await client.annotateSequence(sequence);
           break;
         case 'promoter':
-          result = await alphaGenomeClient.analyzePromoter(sequence);
+          result = await client.analyzePromoter(sequence);
           break;
         case 'splice':
-          result = await alphaGenomeClient.detectSpliceSites(sequence);
+          result = await client.detectSpliceSites(sequence);
           break;
         case 'variation':
-          result = await alphaGenomeClient.analyzeVariation(sequence);
+          result = await client.analyzeVariation(sequence);
           break;
         default:
-          result = await alphaGenomeClient.predictSequence({
+          result = await client.predictSequence({
             sequence,
             analysisType,
             organism: parsedOrganism,
