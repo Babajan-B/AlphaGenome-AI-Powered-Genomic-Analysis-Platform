@@ -9,6 +9,15 @@ A professional web-based application for genomic sequence analysis **inspired by
 ![Google Gemini](https://img.shields.io/badge/Google-Gemini_AI-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+## 👨‍💻 Developer
+
+**Dr. Babajan Banaganapalli**
+- 📧 Email: [b.babajaan@gmail.com](mailto:b.babajaan@gmail.com)
+- 💼 LinkedIn: [linkedin.com/in/babajan](https://sa.linkedin.com/in/babajan)
+- 💻 GitHub: [github.com/Babajan-B](https://github.com/Babajan-B)
+
+---
+
 ## 🧬 About
 
 This project is inspired by [Google DeepMind's AlphaGenome](https://deepmind.google/discover/blog/alphagenome-ai-for-better-understanding-the-genome/), a groundbreaking AI model for genome-wide activity prediction. While the original AlphaGenome model is not publicly available, this web application uses **Google Gemini AI** to provide similar genomic analysis capabilities including:

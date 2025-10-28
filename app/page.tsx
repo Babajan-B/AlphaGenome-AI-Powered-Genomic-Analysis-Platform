@@ -598,6 +598,44 @@ export default function Home() {
             </div>
           </>
         )}
+
+        {/* Footer */}
+        <footer className="mt-12 pb-8 text-center">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+            <p className="text-white text-sm mb-3">
+              Developed with ❤️ by <span className="font-bold text-purple-300">Dr. Babajan Banaganapalli</span>
+            </p>
+            <div className="flex items-center justify-center gap-6 text-xs text-gray-300">
+              <a 
+                href="mailto:b.babajaan@gmail.com" 
+                className="hover:text-purple-300 transition-colors flex items-center gap-1"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                📧 b.babajaan@gmail.com
+              </a>
+              <a 
+                href="https://sa.linkedin.com/in/babajan" 
+                className="hover:text-purple-300 transition-colors flex items-center gap-1"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                💼 LinkedIn
+              </a>
+              <a 
+                href="https://github.com/Babajan-B" 
+                className="hover:text-purple-300 transition-colors flex items-center gap-1"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                💻 GitHub
+              </a>
+            </div>
+            <p className="text-xs text-gray-400 mt-4">
+              Inspired by Google DeepMind's AlphaGenome | Powered by Google Gemini AI
+            </p>
+          </div>
+        </footer>
       </div>
     </main>
   )
