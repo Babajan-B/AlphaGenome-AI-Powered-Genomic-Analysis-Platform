@@ -158,12 +158,26 @@ export default function Home() {
   const loadExample = (key: keyof typeof EXAMPLES) => {
     const example = EXAMPLES[key]
     setMode(example.mode as any)
-    if (example.sequence) setSequence(example.sequence)
-    if (example.interval) setInterval(example.interval)
-    if (example.variant) setVariant(example.variant)
-    if (example.organism) setOrganism(example.organism as any)
-    if (example.outputTypes) setSelectedOutputTypes(example.outputTypes)
-    if (example.ontologyTerms) setSelectedTissues(example.ontologyTerms)
+    
+    // Type-safe property checks
+    if ('sequence' in example && example.sequence) {
+      setSequence(example.sequence)
+    }
+    if ('interval' in example && example.interval) {
+      setInterval(example.interval)
+    }
+    if ('variant' in example && example.variant) {
+      setVariant(example.variant)
+    }
+    if ('organism' in example && example.organism) {
+      setOrganism(example.organism as any)
+    }
+    if ('outputTypes' in example && example.outputTypes) {
+      setSelectedOutputTypes(example.outputTypes)
+    }
+    if ('ontologyTerms' in example && example.ontologyTerms) {
+      setSelectedTissues(example.ontologyTerms)
+    }
   }
 
   const copyToClipboard = async (text: string) => {
