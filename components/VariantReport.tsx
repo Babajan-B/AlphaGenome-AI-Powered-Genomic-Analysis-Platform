@@ -422,7 +422,7 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
 
       {/* Info Box */}
       <div className="bg-blue-50 rounded-lg border-2 border-blue-300 p-6 mb-8">
-        <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2"></h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
           <Info className="w-5 h-5 text-blue-600" />
           About This Analysis
         </h3>
@@ -437,7 +437,7 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
 
       {/* Footer */}
       <div className="border-t-2 border-gray-300 pt-6 text-xs text-gray-600">
-        <p className="mb-2"></p>
+        <p className="mb-2">
           <strong>Disclaimer:</strong> Research use only. Clinical decisions require validation by qualified professionals.
         </p>
         <p className="mb-2"><strong>Developed by:</strong> Dr. Babajan Banaganapalli</p>
