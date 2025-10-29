@@ -58,14 +58,17 @@ const EXAMPLES = {
 }
 
 const OUTPUT_TYPES = [
-  { value: 'DNASE', label: 'DNase-seq', desc: 'DNA accessibility' },
   { value: 'RNA_SEQ', label: 'RNA-seq', desc: 'Gene expression' },
-  { value: 'CAGE', label: 'CAGE', desc: 'Transcription start sites' },
+  { value: 'DNASE', label: 'DNase-seq', desc: 'DNA accessibility' },
   { value: 'ATAC', label: 'ATAC-seq', desc: 'Open chromatin' },
+  { value: 'CAGE', label: 'CAGE', desc: 'Transcription start sites' },
   { value: 'CHIP_HISTONE', label: 'ChIP-seq (Histone)', desc: 'Histone modifications' },
   { value: 'CHIP_TF', label: 'ChIP-seq (TF)', desc: 'TF binding' },
   { value: 'PROCAP', label: 'PRO-cap', desc: 'Nascent transcription' },
   { value: 'SPLICE_SITES', label: 'Splice Sites', desc: 'Splicing signals' },
+  { value: 'SPLICE_SITE_USAGE', label: 'Splice Site Usage', desc: 'Alternative splicing' },
+  { value: 'SPLICE_JUNCTIONS', label: 'Splice Junctions', desc: 'Splicing junctions' },
+  { value: 'CONTACT_MAPS', label: 'Contact Maps', desc: '3D genome organization' },
 ]
 
 const TISSUE_ONTOLOGIES = [
@@ -92,6 +95,23 @@ export default function Home() {
   const [error, setError] = useState<string>('')
   const [copied, setCopied] = useState(false)
   const [showVisualReport, setShowVisualReport] = useState(false)
+
+  // Auto-update interval when variant chromosome or position changes
+  const updateVariant = (updates: Partial<typeof variant>) => {
+    const newVariant = { ...variant, ...updates }
+    setVariant(newVariant)
+    
+    // Auto-calculate interval: ±524,288 bp around variant position (total 1,048,576 bp)
+    // This is the exact supported length for AlphaGenome (2^20)
+    if (newVariant.position && newVariant.chromosome) {
+      const windowSize = 524288 // Half of 1,048,576 (the supported 1MB length)
+      setInterval({
+        chromosome: newVariant.chromosome,
+        start: Math.max(1, newVariant.position - windowSize),
+        end: newVariant.position + windowSize
+      })
+    }
+  }
 
   const handleAnalyze = async () => {
     if (mode === 'sequence' && !sequence.trim()) {
@@ -126,8 +146,17 @@ export default function Home() {
       } else if (mode === 'interval') {
         requestBody.interval = interval
       } else if (mode === 'variant' || mode === 'score_variant') {
+        // For variant analysis, ensure interval is exactly 1,048,576 bp (2^20)
+        const windowSize = 524288 // Half of 1,048,576
+        const variantInterval = {
+          chromosome: variant.chromosome,
+          start: Math.max(1, variant.position - windowSize),
+          end: variant.position + windowSize
+        }
         requestBody.variant = variant
-        requestBody.interval = interval
+        requestBody.interval = variantInterval
+        
+        console.log('Sending interval:', variantInterval, 'Length:', variantInterval.end - variantInterval.start)
       }
 
       const response = await fetch('/api/genome/analyze', {
@@ -405,14 +434,14 @@ export default function Home() {
                           type="text"
                           placeholder="Chromosome"
                           value={variant.chromosome}
-                          onChange={(e) => setVariant({...variant, chromosome: e.target.value})}
+                          onChange={(e) => updateVariant({ chromosome: e.target.value })}
                           className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-semibold"
                         />
                         <input
                           type="number"
                           placeholder="Position"
                           value={variant.position}
-                          onChange={(e) => setVariant({...variant, position: parseInt(e.target.value)})}
+                          onChange={(e) => updateVariant({ position: parseInt(e.target.value) })}
                           className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-semibold"
                         />
                       </div>
@@ -421,16 +450,32 @@ export default function Home() {
                           type="text"
                           placeholder="REF allele"
                           value={variant.reference_bases}
-                          onChange={(e) => setVariant({...variant, reference_bases: e.target.value.toUpperCase()})}
+                          onChange={(e) => updateVariant({ reference_bases: e.target.value.toUpperCase() })}
                           className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-semibold"
                         />
                         <input
                           type="text"
                           placeholder="ALT allele"
                           value={variant.alternate_bases}
-                          onChange={(e) => setVariant({...variant, alternate_bases: e.target.value.toUpperCase()})}
+                          onChange={(e) => updateVariant({ alternate_bases: e.target.value.toUpperCase() })}
                           className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-semibold"
                         />
+                      </div>
+                      
+                      {/* Auto-calculated Genomic Context Display */}
+                      <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-xs font-semibold text-blue-900 mb-1">
+                          📍 Genomic Context (Auto-calculated ±524,288 bp):
+                        </p>
+                        <p className="text-xs text-blue-800 font-mono">
+                          {variant.chromosome}:{Math.max(1, variant.position - 524288).toLocaleString()}-{(variant.position + 524288).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          ✓ Analysis will use this 1,048,576 bp region centered on your variant
+                        </p>
+                        <p className="text-xs text-purple-700 font-semibold mt-1">
+                          Variant at position: {variant.position.toLocaleString()}
+                        </p>
                       </div>
                     </div>
                   )}

@@ -1,12 +1,14 @@
 # 🧬 AlphaGenome - AI-Powered Genomic Analysis Platform
 
-A professional web-based application for genomic sequence analysis **inspired by Google DeepMind's AlphaGenome** and powered by **Google Gemini AI**.
+A professional web-based application for genomic sequence analysis **powered by the real AlphaGenome API from Google DeepMind**.
 
 ![AlphaGenome](https://img.shields.io/badge/AlphaGenome-v1.0.0-purple)
 ![Next.js](https://img.shields.io/badge/Next.js-16.0-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.1-cyan)
-![Google Gemini](https://img.shields.io/badge/Google-Gemini_AI-blue)
+![Python](https://img.shields.io/badge/Python-3.9+-green)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104-teal)
+![AlphaGenome SDK](https://img.shields.io/badge/AlphaGenome-Official_SDK-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## 👨‍💻 Developer
@@ -20,280 +22,364 @@ A professional web-based application for genomic sequence analysis **inspired by
 
 ## 🧬 About
 
-This project is inspired by [Google DeepMind's AlphaGenome](https://deepmind.google/discover/blog/alphagenome-ai-for-better-understanding-the-genome/), a groundbreaking AI model for genome-wide activity prediction. While the original AlphaGenome model is not publicly available, this web application uses **Google Gemini AI** to provide similar genomic analysis capabilities including:
+This project uses the **official AlphaGenome Python SDK from Google DeepMind** to provide **real genomic predictions**. This is NOT a simulation - it connects directly to the actual AlphaGenome model through a Python FastAPI backend.
 
-- Gene expression prediction (RNA-seq)
-- Chromatin accessibility (DNase, ATAC-seq)
-- Transcription factor binding (ChIP-seq)
-- Splice site prediction
-- Variant effect analysis
-- In silico mutagenesis (ISM)
+### Key Features:
+- ✅ **Real AlphaGenome API Integration** - Uses the official Python SDK
+- ✅ **Variant Effect Prediction** - REF vs ALT allele analysis
+- ✅ **Gene Expression** - RNA-seq predictions across tissues
+- ✅ **Chromatin Accessibility** - DNase-seq and ATAC-seq predictions
+- ✅ **Transcription Factor Binding** - ChIP-seq predictions
+- ✅ **Splice Site Prediction** - Donor/acceptor site detection
+- ✅ **In Silico Mutagenesis (ISM)** - Systematic mutation analysis
+- ✅ **Genomic Interval Analysis** - Region-based predictions
 
-## ✨ Features
+## 🏗️ Architecture
 
-- 🧬 **Gene Prediction** - Identify potential genes and coding regions in DNA sequences
-- 🔬 **Sequence Annotation** - Detailed functional annotations of genomic sequences
-- 🧪 **Protein Structure Prediction** - Predict 3D protein structures from amino acid sequences
-- 📊 **Variant Analysis** - Analyze genetic variations and their impacts
-- 🧫 **Chromatin Accessibility** - DNase-seq and ATAC-seq predictions
-- 🔗 **Transcription Factor Binding** - ChIP-seq predictions for histone marks and TFs
-- ✂️ **Splice Site Detection** - Identify donor/acceptor splice sites
-- 🧪 **In Silico Mutagenesis** - Systematic mutation analysis for motif discovery
-- 🎨 **Professional UI** - Modern, responsive interface with gradient animations
-- 🚀 **Real-time Analysis** - Fast AI-powered genomic analysis using **Google Gemini AI**
-- 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
-- 🔐 **Secure API Key Management** - Configure your own API key through the settings page
-
-## 🛠️ Tech Stack
-
-- **Framework**: Next.js 16 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS 4
-- **AI Engine**: **Google Gemini AI API** (inspired by DeepMind's AlphaGenome)
-- **Icons**: Lucide React
-- **HTTP Client**: Axios
+```
+Next.js Frontend (Port 3000)
+        ↓
+Next.js API Route (/api/genome/analyze)
+        ↓
+Python FastAPI Backend (Port 8000)
+        ↓
+Real AlphaGenome SDK
+        ↓
+Google DeepMind's AlphaGenome Model
+```
 
 ## 📋 Prerequisites
 
-- Node.js 18+ installed
-- npm or yarn package manager
-- Google Gemini API Key (free tier available)
+- **Node.js 18+** - For Next.js frontend
+- **Python 3.9+** - For AlphaGenome backend
+- **AlphaGenome API Key** - Get from Google AI Studio (free tier available)
 
 ## 🚀 Quick Start
 
-### 1. Clone and Install
+### Step 1: Install Frontend Dependencies
 
 ```bash
-# Navigate to the project directory
 cd Alphagenome
-
-# Install dependencies
 npm install
 ```
 
-### 2. Get Your Free Google Gemini API Key
+### Step 2: Install Python Backend Dependencies
+
+```bash
+cd python-backend
+pip install -r requirements.txt
+```
+
+This installs:
+- `alphagenome` - Official AlphaGenome SDK from Google DeepMind
+- `fastapi` - Web framework for the Python API
+- `uvicorn` - ASGI server
+- `pydantic` - Data validation
+
+### Step 3: Get Your AlphaGenome API Key
 
 1. Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Sign in with your Google account
 3. Click "Create API Key"
 4. Copy your API key (starts with `AIzaSy...`)
 
-### 3. Configure API Key
+### Step 4: Start the Python Backend Server
 
-**Option A: Using the Settings Page (Recommended for local use)**
-1. Start the development server: `npm run dev`
-2. Navigate to [http://localhost:3000](http://localhost:3000)
-3. Click "⚙️ Settings" button
-4. Paste your API key and click "Save"
-
-**Option B: Using Environment Variables**
-1. Create a `.env.local` file in the root directory:
-   ```bash
-   ALPHAGENOME_API_KEY=your_api_key_here
-   ```
-2. Replace `your_api_key_here` with your actual API key
-
-### 4. Run the Application
+Open a terminal and run:
 
 ```bash
-# Start development server
+cd python-backend
+python main.py
+```
+
+You should see:
+```
+Starting AlphaGenome API Server on http://localhost:8000
+INFO:     Uvicorn running on http://0.0.0.0:8000
+```
+
+**Keep this terminal running!**
+
+### Step 5: Start the Next.js Frontend
+
+Open a **new terminal** and run:
+
+```bash
+cd Alphagenome
 npm run dev
-
-# Or use the Windows batch file
-start.bat
 ```
 
-### 5. Open Your Browser
-
-Navigate to [http://localhost:3000](http://localhost:3000)
-
-## 📖 Usage Guide
-
-### Performing Genomic Analysis
-
-1. **Select Analysis Type**: Choose from four analysis modes:
-   - **Gene Prediction**: Identify genes and coding regions
-   - **Sequence Annotation**: Functional annotations and regulatory elements
-   - **Protein Structure**: Predict protein structures and domains
-   - **Variant Analysis**: Analyze mutations and their impacts
-
-2. **Enter Sequence**: Input your DNA/RNA/Protein sequence
-   - DNA: Use A, T, G, C
-   - RNA: Use A, U, G, C
-   - Protein: Use standard amino acid codes
-
-3. **Analyze**: Click "Analyze Sequence"
-
-4. **View Results**: Get detailed AI-powered insights
-
-### Example Sequences
-
-**DNA Sequence (Gene Prediction)**:
+You should see:
 ```
-ATGCGATACGCTTGAGATTACGATGCTAGCTACGATCGTAGCTAGCTAGCTAGCATCGATCGATCGTAGCTAGCTAGCTAGC
+▲ Next.js 16.0.0
+- Local:        http://localhost:3000
 ```
 
-**Protein Sequence (Structure Prediction)**:
+### Step 6: Configure Your API Key
+
+1. Open your browser and go to [http://localhost:3000](http://localhost:3000)
+2. Click the **"⚙️ Settings"** button in the top right
+3. Paste your API key and click **"Save API Key"**
+
+### Step 7: Analyze Your Variant!
+
+Now you can analyze real variants like:
+- **chr19:23744665 A→G**
+- **chr22:36201698 A→C**
+
+And get **REAL AlphaGenome predictions** (not AI-generated text)!
+
+## 📖 Usage Examples
+
+### Variant Effect Prediction
+
 ```
-MKTIIALSYIFCLVFADYKDDDDK
+Mode: 🔬 Variant
+Chromosome: chr19
+Position: 23744665
+REF: A
+ALT: G
+Output Types: RNA_SEQ, DNASE
+Tissue: Lung (UBERON:0002048)
 ```
 
-**Variant Analysis**:
+Click **"Run AlphaGenome Analysis"** to get real predictions for how this variant affects:
+- Gene expression (RNA-seq)
+- DNA accessibility (DNase-seq)
+- Tissue-specific effects
+
+### Genomic Interval Analysis
+
 ```
-Reference: ATGCGAT
-Variant: ATGGAT (G→G substitution)
+Mode: 📍 Interval
+Chromosome: chr19
+Start: 41349443
+End: 41375443
+Output Types: RNA_SEQ
+Tissue: Right liver lobe
 ```
+
+### In Silico Mutagenesis
+
+```
+Mode: ⚗️ ISM
+Sequence: ATGCGATACGCTTGAGATTACGATGCTAGC...
+Output Types: DNASE
+```
+
+Systematically mutates each position to identify critical regions.
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Next.js 16** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Modern styling
+- **Lucide React** - Icon library
+
+### Backend
+- **Python 3.12** - Programming language
+- **FastAPI** - Modern Python web framework
+- **AlphaGenome SDK** - Official API from Google DeepMind
+- **Uvicorn** - ASGI server
 
 ## 🏗️ Project Structure
 
 ```
-alphagenome/
-├── app/
+Alphagenome/
+├── app/                          # Next.js app directory
 │   ├── api/
 │   │   └── genome/
 │   │       └── analyze/
-│   │           └── route.ts      # API endpoint for genome analysis
+│   │           └── route.ts      # Forwards to Python backend
 │   ├── settings/
-│   │   └── page.tsx              # Settings & API key configuration
-│   ├── layout.tsx                # Root layout with metadata
-│   └── page.tsx                  # Main analysis interface
+│   │   └── page.tsx              # API key configuration
+│   ├── layout.tsx                # Root layout
+│   └── page.tsx                  # Main interface
 ├── components/
-│   ├── SequenceVisualizer.tsx    # DNA/RNA sequence visualization
+│   ├── SequenceVisualizer.tsx    # Sequence visualization
 │   └── VariantReport.tsx         # Variant analysis reports
+├── python-backend/               # Python FastAPI backend
+│   ├── main.py                   # FastAPI server with AlphaGenome
+│   ├── requirements.txt          # Python dependencies
+│   └── README.md                 # Backend documentation
 ├── lib/
-│   └── alphagenome.ts            # Gemini API client wrapper
+│   └── alphagenome.ts            # (Legacy) TypeScript wrapper
 ├── styles/
-│   └── globals.css               # Global styles and animations
-├── public/                       # Static assets
-├── next.config.js                # Next.js configuration
-├── tailwind.config.js            # Tailwind CSS configuration
-├── tsconfig.json                 # TypeScript configuration
-└── package.json                  # Dependencies and scripts
+│   └── globals.css               # Global styles
+├── package.json                  # Node.js dependencies
+└── README.md                     # This file
 ```
-
-## 🎨 Features in Detail
-
-### Analysis Types
-
-1. **Gene Prediction**
-   - Identifies open reading frames (ORFs)
-   - Predicts coding sequences (CDS)
-   - Detects promoter regions
-   - Finds splice sites
-
-2. **Sequence Annotation**
-   - Functional element identification
-   - Regulatory region detection
-   - Binding site prediction
-   - Motif discovery
-
-3. **Protein Structure**
-   - Secondary structure prediction (α-helix, β-sheet)
-   - Domain identification
-   - Functional site detection
-   - 3D structure insights
-
-4. **Variant Analysis**
-   - SNP analysis
-   - Mutation impact assessment
-   - Pathogenicity prediction
-   - Conservation analysis
-
-### UI/UX Features
-
-- ✨ Animated gradient backgrounds
-- 🎯 Real-time loading indicators
-- ⚡ Fast, client-side sequence visualization
-- 📱 Mobile-responsive design
-- 🎨 Color-coded nucleotide display
-- 🔐 Secure local API key storage
 
 ## 🔧 Available Scripts
 
+### Frontend (Next.js)
 ```bash
 npm run dev      # Start development server (http://localhost:3000)
-npm run build    # Build optimized production bundle
+npm run build    # Build for production
 npm run start    # Start production server
-npm run lint     # Run ESLint for code quality
+npm run lint     # Run ESLint
 ```
 
-## 🌐 API Reference
+### Backend (Python)
+```bash
+python main.py   # Start FastAPI server (http://localhost:8000)
+```
 
-### POST `/api/genome/analyze`
+## 🌐 API Endpoints
 
-Analyze a genomic sequence using Google Gemini AI.
+### Python Backend API
 
-**Request Body**:
-```typescript
+#### `GET /`
+Health check endpoint
+
+**Response:**
+```json
 {
-  sequence: string;      // DNA/RNA/Protein sequence
-  analysisType: 'prediction' | 'annotation' | 'structure' | 'variation';
+  "message": "AlphaGenome API Server",
+  "status": "running",
+  "alphagenome_available": true
 }
 ```
 
-**Response**:
-```typescript
+#### `POST /api/analyze`
+Analyze genomic data using real AlphaGenome API
+
+**Request Body:**
+```json
 {
-  success: boolean;
-  predictions?: Array<{
-    type: string;
-    start: number;
-    end: number;
-    sequence: string;
-    confidence: number;
-    details: string;
-  }>;
-  data?: {
-    analysis: string;
-    features: string[];
-    recommendations: string[];
-  };
-  error?: string;
+  "api_key": "YOUR_API_KEY",
+  "analysis_type": "variant",
+  "variant": {
+    "chromosome": "chr19",
+    "position": 23744665,
+    "reference_bases": "A",
+    "alternate_bases": "G"
+  },
+  "interval": {
+    "chromosome": "chr19",
+    "start": 23244665,
+    "end": 24244665
+  },
+  "output_types": ["RNA_SEQ", "DNASE"],
+  "ontology_terms": ["UBERON:0002048"],
+  "organism": "human"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "reference": { ... },
+    "alternate": { ... },
+    "variant": "chr19:23744665:A>G",
+    "interval": "chr19:23244665-24244665"
+  },
+  "message": "Analysis completed using real AlphaGenome API"
 }
 ```
 
 ## 🔐 Security & Privacy
 
 - ✅ API keys stored locally in browser (localStorage)
-- ✅ No data sent to third-party servers
-- ✅ Direct API calls to Google Gemini
-- ✅ Environment variables for server-side keys
-- ⚠️ Never commit `.env.local` to version control
+- ✅ API keys passed securely to Python backend
+- ✅ Direct connection to Google's AlphaGenome API
+- ✅ No data stored on servers
+- ⚠️ Never commit API keys to version control
 
 ## 🚀 Deployment
 
-### Deploy to Vercel (Recommended)
+### Option 1: Local Deployment
 
-1. Push your code to GitHub
-2. Import project in [Vercel](https://vercel.com)
-3. Add environment variable:
-   - Key: `ALPHAGENOME_API_KEY`
-   - Value: Your Gemini API key
-4. Deploy!
-
-### Build for Production
-
+Run both servers locally:
 ```bash
-npm run build
-npm run start
+# Terminal 1: Python Backend
+cd python-backend
+python main.py
+
+# Terminal 2: Next.js Frontend
+cd ..
+npm run dev
+```
+
+### Option 2: Production Deployment
+
+**Frontend (Vercel):**
+1. Push to GitHub
+2. Import to [Vercel](https://vercel.com)
+3. Add environment variable: `PYTHON_BACKEND_URL=https://your-python-backend.com`
+4. Deploy
+
+**Backend (Python):**
+Deploy to:
+- Railway.app
+- Render.com
+- Google Cloud Run
+- AWS Lambda
+
+Set environment variable with your AlphaGenome API key.
+
+## 🐛 Troubleshooting
+
+### "Python backend not running"
+**Error:** `Python backend not running. Please start it with: cd python-backend && python main.py`
+
+**Solution:**
+1. Open a new terminal
+2. Navigate to `python-backend` folder
+3. Run `python main.py`
+4. Keep the terminal open
+
+### "AlphaGenome package not installed"
+**Solution:**
+```bash
+cd python-backend
+pip install alphagenome
+```
+
+### "API Key Required"
+**Solution:**
+1. Go to Settings page
+2. Paste your Google AI Studio API key
+3. Click Save
+
+### "Invalid Variant Format"
+Ensure variant format is correct:
+- Chromosome: chr1, chr2, ..., chrX, chrY
+- Position: Integer (e.g., 23744665)
+- REF/ALT: DNA bases (A, T, G, C)
+
+### Port Already in Use
+**Frontend (Port 3000):**
+```bash
+PORT=3001 npm run dev
+```
+
+**Backend (Port 8000):**
+Edit `main.py` and change the port:
+```python
+uvicorn.run(app, host="0.0.0.0", port=8001)
 ```
 
 ## 📚 Resources
 
-- [Google DeepMind's AlphaGenome](https://deepmind.google/discover/blog/alphagenome-ai-for-better-understanding-the-genome/)
-- [Google Gemini AI Documentation](https://ai.google.dev/gemini-api/docs)
+- [AlphaGenome Documentation](https://www.alphagenomedocs.com/)
+- [AlphaGenome Quick Start Tutorial](./quick_start.ipynb)
+- [Google DeepMind AlphaGenome Blog](https://deepmind.google/discover/blog/alphagenome-ai-for-better-understanding-the-genome/)
+- [Google AI Studio (API Keys)](https://aistudio.google.com/app/apikey)
 - [Next.js Documentation](https://nextjs.org/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [Genomics Primer](https://www.genome.gov/about-genomics)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
 
 ## 🙏 Acknowledgments
 
-- **Google DeepMind** for the AlphaGenome research that inspired this project
-- **Google Gemini AI Team** for providing the AI capabilities that power the analysis
-- Next.js Team for the amazing framework
-- Tailwind CSS for beautiful styling
-- Lucide Icons for the icon set
-- The open-source community
+- **Google DeepMind** - For creating the AlphaGenome model and making it publicly available
+- **Google AI Studio** - For providing free API access
+- **Next.js Team** - For the amazing React framework
+- **FastAPI Team** - For the modern Python web framework
+- **Tailwind CSS** - For beautiful styling
+- **Open Source Community** - For continuous inspiration
 
 ## 🤝 Contributing
 
@@ -305,42 +391,26 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 🐛 Troubleshooting
+## 📝 License
 
-### "API Key Required" Error
-- Go to Settings page and configure your Gemini API key
-- Or add `ALPHAGENOME_API_KEY` to `.env.local`
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-### "Invalid Sequence" Error
-- Ensure DNA sequences only contain A, T, G, C
-- Ensure RNA sequences only contain A, U, G, C
-- Remove any spaces or special characters
+## ⚠️ Disclaimer
 
-### Port 3000 Already in Use
-```bash
-# Use a different port
-PORT=3001 npm run dev
-```
-
-## 📚 Resources
-
-- [Google DeepMind's AlphaGenome](https://deepmind.google/discover/blog/alphagenome-ai-for-better-understanding-the-genome/)
-- [Google Gemini AI Documentation](https://ai.google.dev/gemini-api/docs)
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [Genomics Primer](https://www.genome.gov/about-genomics)
-
-## 🙏 Acknowledgments
-
-- **Google DeepMind** for the AlphaGenome research that inspired this project
-- **Google Gemini AI Team** for providing the AI capabilities that power the analysis
-- Next.js Team for the amazing framework
-- Tailwind CSS for beautiful styling
-- Lucide Icons for the icon set
-- The open-source community
+This tool is for **educational and research purposes**. It uses the official AlphaGenome API from Google DeepMind. Always validate results with established bioinformatics tools and consult with genomics professionals for clinical applications.
 
 ---
 
-**⚠️ Disclaimer**: This tool is for educational and research purposes. It is inspired by but not affiliated with Google DeepMind's AlphaGenome. Always validate results with established bioinformatics tools and consult with genomics professionals for clinical applications.
+**Built with ❤️ by Dr. Babajan Banaganapalli**
 
-**Built with ❤️ using Next.js, TypeScript, and Google Gemini AI | Inspired by Google DeepMind's AlphaGenome**
+**Powered by Google DeepMind's AlphaGenome | Next.js | FastAPI | Python**
+
+---
+
+## 🆘 Support
+
+If you encounter any issues or have questions:
+1. Check the [Troubleshooting](#troubleshooting) section
+2. Review the [Python Backend README](python-backend/README.md)
+3. Open an issue on GitHub
+4. Contact: [b.babajaan@gmail.com](mailto:b.babajaan@gmail.com)

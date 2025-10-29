@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AlphaGenomeAPI, OutputType, Organism } from '@/lib/alphagenome';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,93 +11,79 @@ export async function POST(request: NextRequest) {
       outputTypes,
       ontologyTerms,
       organism,
-      apiKey // Extract API key from request
+      apiKey
     } = body;
 
-    // Create client with user's API key if provided
-    const client = apiKey ? new AlphaGenomeAPI(apiKey) : new AlphaGenomeAPI();
-
-    let result;
+    // Call Python backend with real AlphaGenome API
+    const pythonBackendUrl = process.env.PYTHON_BACKEND_URL || 'http://localhost:8000';
     
-    // Parse output types if provided
-    const parsedOutputTypes = outputTypes?.map((type: string) => 
-      OutputType[type as keyof typeof OutputType]
-    );
+    console.log('Calling Python backend at:', pythonBackendUrl);
+    console.log('Request data:', { analysisType, variant, interval, outputTypes });
 
-    // Parse organism
-    const parsedOrganism = organism === 'mouse' ? Organism.MUS_MUSCULUS : Organism.HOMO_SAPIENS;
-
-    // Handle different analysis modes
-    if (variant) {
-      // Variant prediction/scoring
-      if (analysisType === 'score_variant') {
-        result = await client.scoreVariant({
-          variant,
-          interval,
-          organism: parsedOrganism,
-          outputTypes: parsedOutputTypes
-        });
-      } else {
-        result = await client.predictVariant({
-          variant,
-          interval,
-          organism: parsedOrganism,
-          outputTypes: parsedOutputTypes,
-          ontologyTerms
-        });
-      }
-    } else if (interval) {
-      // Interval-based prediction
-      result = await client.predictInterval({
-        interval,
-        organism: parsedOrganism,
-        outputTypes: parsedOutputTypes,
-        ontologyTerms
-      });
-    } else if (analysisType === 'ism') {
-      // In Silico Mutagenesis
-      result = await client.ismAnalysis({
+    const response = await fetch(`${pythonBackendUrl}/api/analyze`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        api_key: apiKey,
+        analysis_type: analysisType,
+        organism: organism || 'human',
         sequence,
-        organism: parsedOrganism,
-        outputTypes: parsedOutputTypes
-      });
-    } else if (sequence) {
-      // Sequence-based analysis
-      switch (analysisType) {
-        case 'structure':
-          result = await client.generateProteinStructure(sequence);
-          break;
-        case 'annotation':
-          result = await client.annotateSequence(sequence);
-          break;
-        case 'promoter':
-          result = await client.analyzePromoter(sequence);
-          break;
-        case 'splice':
-          result = await client.detectSpliceSites(sequence);
-          break;
-        case 'variation':
-          result = await client.analyzeVariation(sequence);
-          break;
-        default:
-          result = await client.predictSequence({
-            sequence,
-            analysisType,
-            organism: parsedOrganism,
-            outputTypes: parsedOutputTypes,
-            ontologyTerms
-          });
-      }
-    } else {
+        variant,
+        interval,
+        output_types: outputTypes || ['RNA_SEQ'],
+        ontology_terms: ontologyTerms || ['UBERON:0002048'],
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Python backend error:', data);
       return NextResponse.json(
-        { success: false, error: 'Sequence, interval, or variant is required' },
-        { status: 400 }
+        { success: false, error: data.detail || 'Analysis failed' },
+        { status: response.status }
       );
     }
 
-    return NextResponse.json(result);
+    console.log('Python backend response:', data);
+
+    // Format response to match frontend expectations
+    return NextResponse.json({
+      success: true,
+      data: data.data,
+      predictions: [{
+        content: {
+          parts: [{
+            text: `Real AlphaGenome Analysis Results:
+
+Variant: ${data.data.variant || 'N/A'}
+Interval: ${data.data.interval || 'N/A'}
+
+${JSON.stringify(data.data, null, 2)}
+
+${data.message}`
+          }]
+        }
+      }],
+      message: data.message
+    });
+
   } catch (error: any) {
     console.error('API Error:', error);
+    
+    // If Python backend is not running
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('fetch failed')) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Python backend not running on port 8000. Please start it with: cd python-backend && python main.py' 
+        },
+        { status: 503 }
+      );
+    }
+    
     return NextResponse.json(
       { success: false, error: error.message || 'Internal server error' },
       { status: 500 }
