@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useRef } from 'react'
-import { Download, AlertCircle, Info, FileText, BarChart3, TrendingUp, Database, Dna, Activity } from 'lucide-react'
+import React, { useRef, useMemo } from 'react'
+import { Download, AlertCircle, Info, FileText, BarChart3, TrendingUp, Database, Dna, Activity, LineChart } from 'lucide-react'
 
 interface VariantReportProps {
   variantData: any
@@ -57,6 +57,44 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
 
   // Get all available output types from the data
   const availableOutputTypes = Object.keys(alphaGenomeData.reference);
+
+  // Create a simple genome browser-style track visualization
+  const TrackVisualization = ({ trackData, label, color }: any) => {
+    const values = trackData?.values_sample || [];
+    if (values.length === 0) return null;
+
+    // Sample every Nth value to show ~100 points
+    const sampleRate = Math.max(1, Math.floor(values.length / 100));
+    const sampledValues = values.filter((_: any, i: number) => i % sampleRate === 0);
+
+    return (
+      <div className="mb-4">
+        <p className="text-xs font-semibold text-gray-700 mb-1">{label}</p>
+        <div className="relative h-16 bg-gray-100 rounded border border-gray-300">
+          <svg width="100%" height="100%" className="absolute inset-0">
+            {sampledValues.map((val: any, idx: number) => {
+              const x = (idx / sampledValues.length) * 100;
+              const heights = Array.isArray(val) ? val : [val];
+              const maxHeight = Math.max(...heights, 0.01);
+              const normalizedHeight = Math.min(100, (maxHeight / 5) * 100); // Normalize to 0-100%
+              
+              return (
+                <rect
+                  key={idx}
+                  x={`${x}%`}
+                  y={`${100 - normalizedHeight}%`}
+                  width={`${100 / sampledValues.length}%`}
+                  height={`${normalizedHeight}%`}
+                  fill={color}
+                  opacity="0.7"
+                />
+              );
+            })}
+          </svg>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div ref={reportRef} className="bg-white rounded-lg shadow-2xl p-8 max-w-7xl mx-auto">
@@ -154,6 +192,48 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
               </h2>
             </div>
 
+            {/* Genome Browser-Style Track Visualizations */}
+            {refData?.values_sample && refData.values_sample.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <LineChart className="w-5 h-5 text-purple-600" />
+                  Genome Browser View: Track Predictions
+                </h3>
+                
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border-2 border-gray-300">
+                  <p className="text-sm text-gray-700 mb-4">
+                    Showing first 100 bp sample of predictions across {alphaGenomeData.intervalLength.toLocaleString()} bp interval
+                  </p>
+                  
+                  {/* Reference Tracks */}
+                  <div className="mb-6">
+                    <h4 className="text-md font-bold text-blue-900 mb-3">Reference Allele (REF) Tracks</h4>
+                    {refMetadata.slice(0, 5).map((track: any, idx: number) => (
+                      <TrackVisualization
+                        key={`ref-${idx}`}
+                        trackData={refData}
+                        label={`${track.name} (${track.strand || 'N/A'}) - ${track.biosample_name || 'N/A'}`}
+                        color="#3b82f6"
+                      />
+                    ))}
+                  </div>
+
+                  {/* Alternate Tracks */}
+                  <div>
+                    <h4 className="text-md font-bold text-orange-900 mb-3">Alternate Allele (ALT) Tracks</h4>
+                    {altMetadata.slice(0, 5).map((track: any, idx: number) => (
+                      <TrackVisualization
+                        key={`alt-${idx}`}
+                        trackData={altData}
+                        label={`${track.name} (${track.strand || 'N/A'}) - ${track.biosample_name || 'N/A'}`}
+                        color="#f97316"
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Prediction Data Summary */}
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               {/* Reference Allele */}
@@ -173,6 +253,12 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
                   <div className="flex justify-between items-center p-3 bg-white rounded-lg">
                     <span className="text-sm font-semibold text-gray-700">Tracks:</span>
                     <span className="text-sm font-bold text-gray-900">{refShape[1] || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+                    <span className="text-sm font-semibold text-gray-700">Total Data Points:</span>
+                    <span className="text-sm font-bold text-gray-900">
+                      {((refShape[0] || 0) * (refShape[1] || 0)).toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -195,6 +281,12 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
                     <span className="text-sm font-semibold text-gray-700">Tracks:</span>
                     <span className="text-sm font-bold text-gray-900">{altShape[1] || 0}</span>
                   </div>
+                  <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+                    <span className="text-sm font-semibold text-gray-700">Total Data Points:</span>
+                    <span className="text-sm font-bold text-gray-900">
+                      {((altShape[0] || 0) * (altShape[1] || 0)).toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -207,9 +299,9 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
               </h3>
               
               <div className="bg-white border-2 border-gray-300 rounded-xl overflow-hidden">
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto max-h-96 overflow-y-auto">
                   <table className="w-full">
-                    <thead className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+                    <thead className="bg-gradient-to-r from-purple-600 to-blue-600 text-white sticky top-0">
                       <tr>
                         <th className="px-4 py-3 text-left text-xs font-bold uppercase">Track Name</th>
                         <th className="px-4 py-3 text-left text-xs font-bold uppercase">Strand</th>
@@ -250,17 +342,21 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
                   </table>
                 </div>
               </div>
+              
+              <p className="text-xs text-gray-600 mt-2">
+                Showing {refMetadata.length} tracks. Full prediction data contains {refShape[0]?.toLocaleString()} base pairs × {refShape[1]} tracks = {((refShape[0] || 0) * (refShape[1] || 0)).toLocaleString()} total data points.
+              </p>
             </div>
 
-            {/* Genome Browser-style Visualization - REF vs ALT comparison */}
+            {/* Signal Comparison */}
             <div className="mb-8">
               <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-purple-600" />
-                Genome Browser View: REF vs ALT Signal Comparison
+                Mean Signal Comparison (REF vs ALT)
               </h3>
               
               <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border-2 border-purple-300">
-                {refMetadata.map((track: any, idx: number) => {
+                {refMetadata.slice(0, 10).map((track: any, idx: number) => {
                   const altTrack = altMetadata[idx];
                   const refSignal = track.nonzero_mean || 0;
                   const altSignal = altTrack?.nonzero_mean || 0;
@@ -273,13 +369,13 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
                   return (
                     <div key={idx} className="mb-6 last:mb-0 bg-white rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center justify-between mb-3">
-                        <div>
+                        <div className="flex-1">
                           <h4 className="text-sm font-bold text-gray-900">{track.name}</h4>
                           <p className="text-xs text-gray-600">
                             {track.biosample_name} • {track['Assay title'] || track.assay_title} • {track.strand ? `Strand: ${track.strand}` : ''}
                           </p>
                         </div>
-                        <span className={`text-xs font-semibold px-3 py-1 rounded ${
+                        <span className={`text-xs font-semibold px-3 py-1 rounded ml-4 ${
                           delta > 0 ? 'bg-green-100 text-green-800' : delta < 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
                         }`}>
                           {delta > 0 ? '↑' : delta < 0 ? '↓' : '='} {Math.abs(Number(deltaPercent))}%
@@ -316,6 +412,11 @@ export default function VariantReport({ variantData, onDownload }: VariantReport
                     </div>
                   );
                 })}
+                {refMetadata.length > 10 && (
+                  <p className="text-xs text-gray-600 text-center mt-4">
+                    Showing first 10 of {refMetadata.length} tracks
+                  </p>
+                )}
               </div>
             </div>
 
